@@ -2,7 +2,7 @@ import utils from "./utils.js";
 import RNA from "./RNA.js";
 import controls from "./controls.js";
 
-const SAMPLES = 20;
+const SAMPLES = 2;
 const game = Runner.instance_;
 let dinoList = [];
 let dinoIndex = 0;
@@ -11,13 +11,12 @@ let bestScore = 0;
 let bestRNA = null;
 
 function fillDinoList() {
-  for (let i = 0; i < SAMPLES; i++);
-  {
+  for (let i = 0; i < SAMPLES; i++) {
     dinoList[i] = new RNA(3, [10, 10, 2]);
     dinoList[i].load(bestRNA);
-    if (i > 0) dinoList[i].mutate(0.5);
+    if (i > 0) dinoList[i].mutate(0.2);
   }
-  console.log("Lista de dinossauros criada");
+  console.log("Dino list criado!");
 }
 
 setTimeout(() => {
@@ -30,15 +29,15 @@ setInterval(() => {
 
   const dino = dinoList[dinoIndex];
 
-  if (game.crashed) {
+  if (game.crashed) {    
     if (dino.score > bestScore) {
       bestScore = dino.score;
       bestRNA = dino.save();
-      console.log("Melhor pontuação:", bestScore);
+      console.log("bestScore:", bestScore);
     }
     dinoIndex++;
 
-    if (dinoIndex === SAMPLES) {
+    if (dinoIndex === SAMPLES) {            
       fillDinoList();
       dinoIndex = 0;
       bestScore = 0;
@@ -51,38 +50,34 @@ setInterval(() => {
 
   const player = {
     x: tRex.xPos,
-    y: tRex.y.Pos,
-    speed: currentSpeed
+    y: tRex.yPos,
+    speed: currentSpeed,
   };
 
   const [obstacle] = horizon.obstacles
-  .map((obstacle) => {
-    return {
+    .map((obstacle) => {
+      return {
         x: obstacle.xPos,
         y: obstacle.yPos,
-    }
-  })
-  .filter((obstacle) => obstacle.x > player.x);
+      };
+    })
+    .filter((obstacle) => obstacle.x > player.x);
 
-  if (obstacle) {
-    const distance = 1 - (utils.getDistance(player, obstacle) / dimensions.WIDTH);
+  if (obstacle) {    
+    const distance = 1 - utils.getDistance(player, obstacle) / dimensions.WIDTH;
     const speed = player.speed / 6;
-    const height = Mathc.tanh(105 - obstacle.y);
+    const height = Math.tanh(105 - obstacle.y);
 
-    const [jump, crouch] = dino.compute([
-        distance,
-        speed,
-        height,
-    ]);
+    const [jump, crounch] = dino.compute([distance, speed, height]);
 
-    if (jump === crouch) return;
-    if (jump) controls.dispatch('jump'); // Se for verdadeira o dinossauro pula!
-    if (crouch) controls.dispatch(crouch);
-  };
+    if (jump === crounch) return;
+    if (jump) controls.dispatch("jump");
+    if (crounch) controls.dispatch("crounch");
+  }
 }, 100);
 
-/*const s = document.createElement('scrip');
+/* const s = document.createElement('script');
 s.type = 'module';
-s.src = "http://localhost:5500/script.js";
-document.body.appendChild(s);*/
+s.src = 'http://localhost:5500/script.js';
+document.body.appendChild(s); */
 
